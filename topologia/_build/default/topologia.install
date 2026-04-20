@@ -1,0 +1,8 @@
+lib: [
+  "_build/install/default/lib/topologia/META"
+  "_build/install/default/lib/topologia/dune-package"
+  "_build/install/default/lib/topologia/opam"
+]
+bin: [
+  "_build/install/default/bin/topologia"
+]
