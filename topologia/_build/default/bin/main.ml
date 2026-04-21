@@ -53,7 +53,7 @@ let is_topologico  = function
 
 (* Example usage *)
 (* 1. Define a list of points (a triangle in 2D space) *)
-let my_points = [(0.0, 0.0); (3.0, 0.0); (0.0, 4.0)]
+let my_points = [(0.0, 0.0); (4.5, 8.0); (0.0, 4.0)]
 
 (* 2. Wrap them in the Metrico constructor *)
 let my_space = Metrico my_points

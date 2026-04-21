@@ -2,6 +2,21 @@ type espaco =
   | Metrico of (float * float) list
   | Topologico of (float * float) list
 
+type set = 
+  | Finite of (float * float) list
+  | Infinite of (float * float) list
+  | Empty
+  | Equal of (float * float) list
+  | Equivalent of (float * float) list
+  | Subset of (float * float) list
+  | Superset of (float * float) list
+  | Universal of (float * float) list
+  | PowerSet of (float * float) list
+  | Disjoint of (float * float) list
+  | Overlap of (float * float) list
+  | Open of (float * float) list
+  | Closed of (float * float) list
+
 let dist_fn (x1, y1) (x2, y2) =
   sqrt (((x2 -. x1) ** 2. +. (y2 -. y1) ** 2.) : float)
 
@@ -23,16 +38,24 @@ let symmetry dist_fn points =
     List.for_all (fun p2 -> dist_fn p1 p2 = dist_fn p2 p1) points
   ) points
 
+(** Epsilon for floating-point comparison / Error tolerance *)
+let epsilon = 1e-9
+
 (* Your triangle_inequality already uses three nested loops,
    but make sure the first one is just 'p1' not '(p1, p2)' *)
 let triangle_inequality dist_fn points =
   List.for_all (fun p1 ->
     List.for_all (fun p2 ->
       List.for_all (fun p3 ->
-        dist_fn p1 p3 <= dist_fn p1 p2 +. dist_fn p2 p3
+        dist_fn p1 p3 <= (dist_fn p1 p2 +. dist_fn p2 p3) + epsilon
       ) points
     ) points
   ) points
+
+(** Check if a set is open in a topological space *)
+let is_open_set points topoloy = function
+  | Open pts -> List.for_all (fun p -> List.mem p points) pts
+  | _ -> false
 
 (* Each axiom function must take the data and pass it to the next *)
 let is_metrico  = function
@@ -51,9 +74,13 @@ let is_topologico  = function
     triangle_inequality dist_fn points
   | _ -> false
 
+let is_hausdorff = function
+  | Open points -> is_open_set points (Open points)
+  | _ -> false
+
 (* Example usage *)
 (* 1. Define a list of points (a triangle in 2D space) *)
-let my_points = [(0.0, 0.0); (3.0, 0.0); (0.0, 4.0)]
+let my_points = [(0.0, 0.0); (4.5, 8.0); (0.0, 4.0)]
 
 (* 2. Wrap them in the Metrico constructor *)
 let my_space = Metrico my_points
