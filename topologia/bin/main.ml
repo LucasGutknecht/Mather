@@ -47,7 +47,7 @@ let triangle_inequality dist_fn points =
   List.for_all (fun p1 ->
     List.for_all (fun p2 ->
       List.for_all (fun p3 ->
-        dist_fn p1 p3 <= (dist_fn p1 p2 +. dist_fn p2 p3) + epsilon
+        dist_fn p1 p3 <= (dist_fn p1 p2 +. dist_fn p2 p3) +. epsilon
       ) points
     ) points
   ) points
