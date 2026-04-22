@@ -1,6 +1,13 @@
 (**
     This Ocaml code defines the simplest framework for checking if a given 
       set of points is a valid metric space or topological space, based on axioms.
+
+    Some heuristic decisions made in this implementation:
+      - We are treating the space as a collection of points in 2D, which is a common way to visualize metric and topological spaces.
+      - The distance function is defined as the Euclidean distance between points, which is a standard choice for metric spaces.
+      - The axioms for metric spaces (non-negativity, identity of indiscernibles, symmetry, triangle inequality) are implemented as separate functions that check each axiom against the list of points.
+      - For topological spaces, we are only checking the T2 (Hausdorff) separation axiom, which states that any two distinct points can be separated by disjoint open sets. This is a fundamental property of many topological spaces.
+      - The code is structured to allow for easy extension to more complex types of spaces and additional axioms if needed.
 *)
 
 (**
@@ -28,6 +35,19 @@ type espaco =
   | Metrico of (float * float) list
   | Topologico of (float * float) list
 
+(** 
+  Here we define the types of sets. Each set is a list of points (float * float) representing coordinates in 2D space. 
+  We have different types of sets to represent various properties and operations on sets, such as finite, infinite, empty, equal, equivalent, subset, superset, universal, power set, disjoint, overlap, open, and closed sets.
+
+  Why do we need different types of sets?
+    - To represent different properties and operations on sets that are relevant in metric and topological spaces.
+    - For example, we might want to check if two sets are disjoint or if one set is a subset of another. 
+      - These operations require us to have a way to represent and manipulate different types of sets.
+
+  Restrictions of types:
+    - This is a very simplified model. Real metric and topological spaces can involve much more complex sets and operations.
+    - The types defined here are not exhaustive; there are many other types of sets and operations that could be relevant in different contexts.
+*)  
 type set = 
   | Finite of (float * float) list
   | Infinite of (float * float) list
