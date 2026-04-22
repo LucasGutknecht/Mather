@@ -1,3 +1,29 @@
+(**
+    This Ocaml code defines the simplest framework for checking if a given 
+      set of points is a valid metric space or topological space, based on axioms.
+*)
+
+(**
+  Here we define the types of spaces. Each type is a list of points(Type float): (x, y).
+
+  Why would nees a pair of points?
+    - To check the axioms of metric spaces, we need to compute distances between pairs of points.
+    - For topological spaces, we also need to check properties that involve pairs of points (like separation axioms).
+    Are all spaces defined as pairs of points? 
+      - No, but for the sake of this example, we are treating the space as a collection of points in 2D.
+      - A space doesnt have to be a grid of coordinates. It can be a space of functions, shapes, sequences... even symbols.
+      - What will be different is how we define the axioms in the face of the content of the space. 
+      - For example, in a space of functions, the distance might be defined as the maximum difference between function values, 
+        rather than Euclidean distance between points.
+      Example of spaces with not pairs of points:
+        - A topological space could be defined by a set of open sets, which are subsets of the points, rather than just pairs of points.
+
+  Restrictions of types:
+    - This is a very simplified model. Real metric and topological spaces can be much more complex, and the axioms can involve more than just pairs of points. 
+      - To achieve this we must genericize the types(Polimorphism) to allow for more complex structures, such as sets of functions, shapes, or even abstract elements.
+    - The distance function is fixed as Euclidean distance, which may not be appropriate for all metric spaces.
+    - The topological space is not fully defined;
+*)
 type espaco =
   | Metrico of (float * float) list
   | Topologico of (float * float) list
@@ -50,7 +76,7 @@ let symmetry dist_fn points =
     List.for_all (fun p2 -> dist_fn p1 p2 = dist_fn p2 p1) points
   ) points
 
-(** Epsilon for floating-point comparison / Error tolerance *)
+(* Epsilon for floating-point comparison / Error tolerance *)
 let epsilon = 1e-9
 
 (* Your triangle_inequality already uses three nested loops,
