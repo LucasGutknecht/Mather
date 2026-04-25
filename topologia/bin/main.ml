@@ -1,5 +1,5 @@
 (**
-    This Ocaml code defines the simplest framework for checking if a given 
+    This Ocaml code defines the simplest framework for checking if a given
       set of points is a valid metric space or topological space, based on axioms.
 
     Some heuristic decisions made in this implementation:
@@ -16,17 +16,17 @@
   Why would nees a pair of points?
     - To check the axioms of metric spaces, we need to compute distances between pairs of points.
     - For topological spaces, we also need to check properties that involve pairs of points (like separation axioms).
-    Are all spaces defined as pairs of points? 
+    Are all spaces defined as pairs of points?
       - No, but for the sake of this example, we are treating the space as a collection of points in 2D.
       - A space doesnt have to be a grid of coordinates. It can be a space of functions, shapes, sequences... even symbols.
-      - What will be different is how we define the axioms in the face of the content of the space. 
-      - For example, in a space of functions, the distance might be defined as the maximum difference between function values, 
+      - What will be different is how we define the axioms in the face of the content of the space.
+      - For example, in a space of functions, the distance might be defined as the maximum difference between function values,
         rather than Euclidean distance between points.
       Example of spaces with not pairs of points:
         - A topological space could be defined by a set of open sets, which are subsets of the points, rather than just pairs of points.
 
   Restrictions of types:
-    - This is a very simplified model. Real metric and topological spaces can be much more complex, and the axioms can involve more than just pairs of points. 
+    - This is a very simplified model. Real metric and topological spaces can be much more complex, and the axioms can involve more than just pairs of points.
       - To achieve this we must genericize the types(Polimorphism) to allow for more complex structures, such as sets of functions, shapes, or even abstract elements.
     - The distance function is fixed as Euclidean distance, which may not be appropriate for all metric spaces.
     - The topological space is not fully defined;
@@ -35,20 +35,20 @@ type espaco =
   | Metrico of (float * float) list
   | Topologico of (float * float) list
 
-(** 
-  Here we define the types of sets. Each set is a list of points (float * float) representing coordinates in 2D space. 
+(**
+  Here we define the types of sets. Each set is a list of points (float * float) representing coordinates in 2D space.
   We have different types of sets to represent various properties and operations on sets, such as finite, infinite, empty, equal, equivalent, subset, superset, universal, power set, disjoint, overlap, open, and closed sets.
 
   Why do we need different types of sets?
     - To represent different properties and operations on sets that are relevant in metric and topological spaces.
-    - For example, we might want to check if two sets are disjoint or if one set is a subset of another. 
+    - For example, we might want to check if two sets are disjoint or if one set is a subset of another.
       - These operations require us to have a way to represent and manipulate different types of sets.
 
   Restrictions of types:
     - This is a very simplified model. Real metric and topological spaces can involve much more complex sets and operations.
     - The types defined here are not exhaustive; there are many other types of sets and operations that could be relevant in different contexts.
-*)  
-type set = 
+*)
+type set =
   | Finite of (float * float) list
   | Infinite of (float * float) list
   | Empty
@@ -63,13 +63,40 @@ type set =
   | Open of (float * float) list
   | Closed of (float * float) list
 
+  (**
+    Disjoint set are collections of elements that have no common members, meaning that their intersection is an empty set.
+
+    To achieve this in Ocaml, we define a function which takes two sets as input. Mathching them, first, we take the
+    list of points from each set and match them with pertinent stablished types as input '|'/'or' operator.
+
+    Then, we use List.for_all to check if every point in the first set does not exist in the second set.
+      - The function List.for_all takes an anonymous function that checks if a point p1 from the first set is not found in the second set (using List.exists).
+      - If all points in the first set satisfy this condition, then the function returns true, indicating that the sets are disjoint. If any point in the first set is found in the second set, the function returns false, indicating that the sets are not disjoint.
+    If either set is empty, we can immediately conclude that they are disjoint, since an empty set has no elements to share with any other set.
+     - In this case, we check if either set is Empty and return true if so.
+     - If the sets are of unsupported types for disjoint check, we raise an exception to indicate that the operation cannot be performed.
+
+     Why do we need to check if sets are disjoint?
+      - In topology, the concept of disjoint sets is important for defining separation axioms, such as the T2 (Hausdorff) axiom, which states that any two distinct points can be separated by disjoint open sets.
+      - In metric spaces, disjoint sets can also be relevant for understanding the structure of the space and how points relate to each other.
+  *)
 let are_disjoint_set set1 set2 =
   match (set1, set2) with
   | ((Finite pts1 | Open pts1 | Closed pts1 | Disjoint pts1), (Finite pts2 | Open pts2 | Closed pts2 | Disjoint  pts2)) ->
     List.for_all (fun p1 -> not (List.exists (fun p2 -> p1 = p2) pts2)) pts1
   | (Empty, _) | (_, Empty) -> true
-  | _ -> failwith "Unsupported set types for disjoint check" 
+  | _ -> failwith "Unsupported set types for disjoint check"
 
+(**
+    This is a distance function that calculates the Euclidean distance between two points in 2D space.
+
+    Euclidean distance means the straight-line distance between two points in a 2D plane. It is calculated using the formula:
+      distance = sqrt((x2 - x1)^2 + (y2 - y1)^2). The name of the formula is the Pythagorean theorem, which states that in a right triangle, the square of the length of the hypotenuse (the side opposite the right angle) is equal to the sum of the squares of the lengths of the other two sides.
+
+      Why do we need a distance function?
+        - In metric spaces, the distance function is a fundamental component that defines the structure of the space. It allows us to measure how far apart points are from each other, which is essential for checking the axioms of metric spaces (like non-negativity, identity of indiscernibles, symmetry, and triangle inequality).
+        - In topological spaces, while we do not necessarily need a distance function to define the topology, having one can help us understand the properties of the space and how points relate to each other in terms of proximity.
+*)
 let dist_fn (x1, y1) (x2, y2) =
   sqrt (((x2 -. x1) ** 2. +. (y2 -. y1) ** 2.) : float)
 
@@ -115,7 +142,7 @@ let is_open_set points topoloy = function
   | Open pts -> List.for_all (fun p -> List.mem p points) pts
   | _ -> false
 
-let check_t2_property point topology = 
+let check_t2_property point topology =
   let open_points = match topology with
     | Open pts -> pts
     | _ -> failwith "Unsupported topology type for T2 check"
@@ -128,8 +155,8 @@ let check_t2_property point topology =
 let can_be_separated_t2 p1 p2 topology =
   List.exists (fun u ->
     List.exists (fun v ->
-      cointain_point p1 u && 
-      cointain_point p2 v && 
+      cointain_point p1 u &&
+      cointain_point p2 v &&
       are_disjoint_set u v
     ) topology
   ) topology
@@ -158,15 +185,14 @@ let is_topologico  = function
 let is_space_hausdorff points topology =
   List.for_all (fun p1 ->
     List.for_all (fun p2 ->
-      if p1 = p2 then true 
+      if p1 = p2 then true
       else can_be_separated_t2 p1 p2 topology
     ) points
   ) points
 
 (* Example usage *)
-(* 1. Define a list of points (a triangle in 2D space) *)
-let my_points = [(0.0, 0.0); (4.5, 8.0); (0.0, 4.0)]
-
+(* 1. Define a list of points (a triangle in 2D space); add invalid points. example characters *)
+let my_points = [(0.0, 0.0); (4.5, 8.0); (0.0, 4.0); (1.0, nan)] (* This point is added to potentially violate the axioms *)
 (* 2. Wrap them in the Metrico constructor *)
 let my_space = Metrico my_points
 
