@@ -8,6 +8,13 @@ type matrix =
 
 
 (* Axioms *)
+let square_or_rectangular m =
+  if List.length m = List.length (List.hd m) then
+    Square (List.length m, m)
+  else
+    Rectangular (List.length m, List.length (List.hd m), m)
+
+
 (* Note the performance is O(nˆ2) due to List.nth which is O(n) inside List.mapi which is also O(n). Given the O(n * n) -> O(n^2) complexity, this is not efficient for large matrices. *)
 let get_diagonal m =
   List.mapi (fun i row -> List.nth row i) m
