@@ -1,0 +1,4 @@
+(executable
+ (public_name algebra_linear)
+ (name main)
+ (libraries algebra_linear))
