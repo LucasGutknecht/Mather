@@ -101,17 +101,54 @@ let dist_fn (x1, y1) (x2, y2) =
   sqrt (((x2 -. x1) ** 2. +. (y2 -. y1) ** 2.) : float)
 
 (* Axioms for metric spaces *)
-(* Use nested List.for_all to compare every p1 to every p2 *)
+
+(**
+  Here we define the axioms for metric spaces. Each axiom is implemented as a function that checks a specific property of the distance function and the points in the space.
+
+  Why do we need to check these axioms?
+    - The axioms of metric spaces are fundamental properties that must hold for a space to be considered a metric space. They ensure that the distance function behaves in a way that is consistent with our intuitive understanding of distance.
+    - By checking these axioms, we can determine whether a given set of points and a distance function define a valid metric space.
+
+  Restrictions of these axioms:
+    - These axioms are specific to metric spaces and may not apply to other types of spaces (like topological spaces). For example, in a topological space, we do not require a distance function, and the properties we check would be different (like separation axioms).
+*)
+
+(**
+  Here we define the axiom of is zero or positive, which states that the distance between any two points must be greater than or equal to zero.
+
+  As parameters it receives the distance function and the list of points in the space. It uses List.for_all to check if every pair of points (p1, p2) satisfies the condition that the distance between them is greater than or equal to zero.
+
+  Why do we need to check this axiom?
+    - This is a fundamental property of distance functions in metric spaces. It ensures that the concept of distance is meaningful and consistent with our intuitive understanding of how distance should behave.
+    - If this axiom is violated, it would imply that there are points in the space that are "negatively distant" from each other, which does not make sense in the context of a metric space.
+
+  Restrictions of this axiom:
+    - This axiom is specific to metric spaces and may not apply to other types of spaces (like topological spaces). In a topological space, we do not require a distance function, so this axiom would not be relevant.
+*)
 let is_zero_or_positive dist_fn points =
   List.for_all (fun p1 ->
     List.for_all (fun p2 -> dist_fn p1 p2 >= 0.) points
   ) points
 
+(**
+  Here we define the axiom of non-degeneracy, which states that the distance between two points is zero if and only if the points are the same.
+
+  As parameters it receives the distance function and the list of points in the space. It uses List.for_all to check if every pair of points (p1, p2) satisfies the condition that the distance between them is less than a small epsilon value (indicating they are effectively the same point) if and only if p1 and p2 are actually the same point.
+
+  The epsilon value is used to account for floating-point precision issues, allowing us to treat points that are very close together as the same point.
+
+  Why do we need to check this axiom?
+    - This axiom ensures that the distance function can distinguish between different points in the space. If this axiom is violated, it would imply that there are distinct points in the space that are considered to be at zero distance from each other, which would undermine the structure of a metric space.
+
+  Restrictions of this axiom:
+    - This axiom is specific to metric spaces and may not apply to other types of spaces (like topological spaces). In a topological space, we do not require a distance function, so this axiom would not be relevant.
+*)
 let epsilon = 1e-9
 let non_degeneracy dist_fn points =
   List.for_all (fun p1 ->
     List.for_all (fun p2 -> (abs_float (dist_fn p1 p2) < epsilon) = (p1 = p2)) points
   ) points
+
 
 let cointain_point p = function
   | (Finite pts | Open pts | Closed pts) -> List.exists (fun pt -> dist_fn pt p < epsilon) pts
